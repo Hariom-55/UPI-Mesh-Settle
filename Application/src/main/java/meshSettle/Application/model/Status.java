@@ -1,4 +1,4 @@
-package meshSettle.Application.entity;
+package meshSettle.Application.model;
 
 public enum Status
 {

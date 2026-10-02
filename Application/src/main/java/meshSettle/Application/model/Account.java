@@ -1,4 +1,4 @@
-package meshSettle.Application.entity;
+package meshSettle.Application.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
