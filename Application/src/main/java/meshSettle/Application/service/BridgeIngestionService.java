@@ -28,9 +28,11 @@ public class BridgeIngestionService {
     private long maxAgeSeconds;
 
     public IngestResult ingest(MeshPacket packet, String bridgeNodeId, int hopCount) {
+
+        String packetHash = "?";
         try {
 
-            String packetHash = hybridCryptoService.hashCiphertext(
+            packetHash = hybridCryptoService.hashCiphertext(
                     packet.getCiphertext()
             );
 
@@ -65,7 +67,7 @@ public class BridgeIngestionService {
                 );
             }
 
-            // ---- Freshness check (replay protection) ----
+
             long ageSeconds = (Instant.now().toEpochMilli() - instruction.getSignedAt()) / 1000;
 
             if (ageSeconds > maxAgeSeconds) {
@@ -98,6 +100,19 @@ public class BridgeIngestionService {
                     tx
             );
 
+        } catch (IllegalArgumentException e) {
+
+            log.warn(
+                    "Instruction rejected for packet {}: {}",
+                    packetHash.length() > 12 ? packetHash.substring(0, 12) + "..." : packetHash,
+                    e.getMessage()
+            );
+
+            return IngestResult.invalid(
+                    packetHash,
+                    "invalid_instruction: " + e.getMessage()
+            );
+
         } catch (Exception e) {
             log.error(
                     "Ingestion error: {}",
@@ -106,9 +121,8 @@ public class BridgeIngestionService {
             );
 
             return IngestResult.invalid(
-                    "?",
-                    "internal_error: "
-                            + e.getMessage()
+                    packetHash,
+                    "internal_error"
             );
         }
     }

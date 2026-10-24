@@ -1,5 +1,6 @@
 package meshSettle.Application.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import meshSettle.Application.component.ServerKeyHolder;
 import meshSettle.Application.model.Account;
@@ -136,7 +137,7 @@ public class MeshController
 
     @PostMapping("/bridge/ingest")
     public ResponseEntity<?> ingest(
-            @RequestBody MeshPacket packet,
+            @Valid @RequestBody MeshPacket packet,
             @RequestHeader(value = "X-Bridge-Node-Id", defaultValue = "unknown") String bridgeNodeId,
             @RequestHeader(value = "X-Hop-Count", defaultValue = "0") int hopCount) {
 
