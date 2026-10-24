@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 @Data
-@RequiredArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "transactions",

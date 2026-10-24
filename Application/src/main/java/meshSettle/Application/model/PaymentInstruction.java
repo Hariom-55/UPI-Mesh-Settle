@@ -2,12 +2,11 @@ package meshSettle.Application.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+
 
 import java.math.BigDecimal;
 
 @Data
-@RequiredArgsConstructor
 @NoArgsConstructor
 public class PaymentInstruction
 {
@@ -17,4 +16,14 @@ public class PaymentInstruction
     private String pinHash;
     private String nonce;
     private Long signedAt;
+
+    public PaymentInstruction(String senderVpa, String receiverVpa, BigDecimal amount,
+                              String pinHash, String nonce, Long signedAt) {
+        this.senderVpa = senderVpa;
+        this.receiverVpa = receiverVpa;
+        this.amount = amount;
+        this.pinHash = pinHash;
+        this.nonce = nonce;
+        this.signedAt = signedAt;
+    }
 }
