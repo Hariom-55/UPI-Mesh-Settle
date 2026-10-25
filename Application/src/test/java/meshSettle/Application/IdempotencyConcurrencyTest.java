@@ -29,13 +29,15 @@ public class IdempotencyConcurrencyTest
     @Autowired private HybridCryptoService crypto;
     @Autowired private ServerKeyHolder serverKey;
 
+    private static final int BRIDGES = 50;
+
     @BeforeEach
     void clear() {
         idempotency.clear();
     }
 
     @Test
-    void singlePacketDeliveredByThreeBridgesSettlesExactlyOnce() throws Exception {
+    void singlePacketDeliveredByManyBridgesSettlesExactlyOnce() throws Exception {
 
         BigDecimal aliceBefore = accounts.findById("alice@demo")
                 .orElseThrow()
@@ -54,15 +56,15 @@ public class IdempotencyConcurrencyTest
                 5
         );
 
-        ExecutorService pool = Executors.newFixedThreadPool(3);
+        ExecutorService pool = Executors.newFixedThreadPool(BRIDGES);
 
         CountDownLatch start = new CountDownLatch(1);
         AtomicInteger settled = new AtomicInteger();
         AtomicInteger duplicates = new AtomicInteger();
 
-        Future<?>[] futures = new Future[3];
+        Future<?>[] futures = new Future[BRIDGES];
 
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < BRIDGES; i++)
         {
             final String node = "bridge-" + i;
             futures[i] = pool.submit(() ->
@@ -90,11 +92,11 @@ public class IdempotencyConcurrencyTest
         }
 
         start.countDown();
-        for (Future<?> f : futures) f.get(5, TimeUnit.SECONDS);
+        for (Future<?> f : futures) f.get(30, TimeUnit.SECONDS);
         pool.shutdown();
 
         assertEquals(1, settled.get(), "exactly one bridge should settle");
-        assertEquals(2, duplicates.get(), "the other two should be duplicates");
+        assertEquals(BRIDGES -1, duplicates.get(), "all others should be duplicates");
 
 
         BigDecimal aliceAfter = accounts.findById("alice@demo")
